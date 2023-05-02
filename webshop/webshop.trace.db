@@ -1,0 +1,3 @@
+2023-05-02 13:09:58 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "PRODUCTS" not found (this database is empty); SQL statement:
+select p1_0.id,p1_0.img,p1_0.in_stock,p1_0.name,p1_0.price,p1_0.weight from products p1_0 where p1_0.id=? [42104-214]
