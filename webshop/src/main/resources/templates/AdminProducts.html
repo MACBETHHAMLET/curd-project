@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="adminLayout" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Products</title>
+</head>
+<body>
+<div class="p-4" layout:fragment="main">
+    <h2 class="text-2xl mb-6 font-bold block">Products List </h2>
+    <a class="bg-sky-300 hover:bg-sky-400 focus:bg-sky-500 p-2 rounded-lg " th:href="@{/admin/product/new}">New
+        Product</a>
+    <table class="table-auto border-collapse border border-slate-400 mt-6">
+        <thead>
+        <tr>
+            <th>Actions</th>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>In Stock</th>
+            <th>Weight</th>
+            <th>Image File</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="product : ${products}">
+            <td class="border border-slate-300 p-2">
+                <a class="bg-red-300 hover:bg-red-400 focus:bg-red-500 p-1 mx-2 rounded-lg"
+                   th:href="@{/admin/product/{id}/del(id=${product.id})}">Delete</a>
+                <a class="bg-blue-300 hover:bg-blue-400 focus:bg-blue-500 p-1 mx-2 rounded-lg"
+                   th:href="@{/admin/product/{id}/(id=${product.id})}">Edit</a>
+            </td>
+            <td class="border border-slate-300 px-1 " th:text="${product.id}"></td>
+            <td class="border border-slate-300 px-1" th:text="${product.name}"></td>
+            <td class="border border-slate-300 px-1" th:text="${product.price}"></td>
+            <td class="border border-slate-300 px-1" th:text="${product.inStock}"></td>
+            <td class="border border-slate-300 px-1" th:text="${product.weight}"></td>
+            <td class="border border-slate-300 px-1 font-mono" th:text="${product.img}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
+
