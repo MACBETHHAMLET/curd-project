@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <link th:href="@{/styles/main.css}" rel="stylesheet"/>
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<header class="font-extrabold text-lime-400 bg-lime-100 text-4xl py-6 text-center">🧺Farmers Market🧺</header>
+<main id="content">
+    <div layout:fragment="main"></div>
+</main>
+<footer class="footer bg-stone-200 flex flex-row justify-between py-2 px-8">
+    <p>eShop Project 2023 made with 💖 </p>
+    <p> contact us <a class="hover:text-blue-400" href="support@farmers-market.com">support@farmers-market.com</a></p>
+</footer>
+</body>
+</html>
