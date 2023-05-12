@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="adminLayout" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>New Product</title>
+</head>
+<body layout:fragment="main">
+<div>
+    <h2>New Product</h2>
+    <form class="grid grid-cols-2 gap-2 w-content " action="#" th:action="@{/admin/product/{id}(id=${product.id})}" method="post"
+          th:object="${product}">
+        <label for="name">Name</label>
+        <input th:field="*{name}" class="border rounded-lg" type="text" id="name">
+
+        <label for="price">price</label>
+        <input th:field="*{price}" class="border rounded-lg" type="number" step="0.01" min="0.00" max="1000.00"
+               pattern="[0-9]+([,.][0-9]+)?" id="price">
+
+        <label for="in-stock">in stock</label>
+        <input th:field="*{inStock}" class="border rounded-lg" type="number" id="in-stock">
+
+        <label for="weight">weight (Kg)</label>
+        <input th:field="*{weight}" class="border rounded-lg" type="number" step="0.001" min="0.00" max="100.00"
+               pattern="[0-9]+([,.][0-9]+)?" id="weight">
+
+        <label for="image">image</label>
+        <input th:field="*{img}" class="border rounded-lg" type="file" accept="image/*" id="image">
+
+        <button type="submit" class="border rounded-lg p-2 hover:bg-blue-200 focus:bg-blue-400">Add</button>
+    </form>
+</div>
+
+</body>
+</html>
+
