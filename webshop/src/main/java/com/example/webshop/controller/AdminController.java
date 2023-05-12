@@ -61,7 +61,10 @@ public class AdminController {
 
             if (optionalProduct.isPresent()) {
                 Product product = optionalProduct.get();
-                BeanUtils.copyProperties(edittedProduct, product, "id"); // ignore id property
+                if (edittedProduct.getImg() == "")
+                    BeanUtils.copyProperties(edittedProduct, product, "id", "img"); // ignore id property
+                else
+                    BeanUtils.copyProperties(edittedProduct, product, "id"); // ignore id property
                 productRepo.save(product);
                 return "redirect:/admin/product/";
             } else {
