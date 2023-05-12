@@ -8,8 +8,11 @@
 <div class="p-4" layout:fragment="main">
     <h2 class="text-2xl py-10  font-bold ">🌾Today's Fresh Products ‍🌾</h2>
     <div class="flex flex-col items-start gap-6">
-        <div th:each="product: ${products}" class="rounded-lg  shadow-lg flex flex-row divide-x-2 gap-2 px-4 w-96">
-            <img th:src="@{/{imageName}(imageName=${product.img})}" class="w-40 h-40 " alt="product image">
+        <div th:each="product: ${products}" class="rounded-lg  shadow-lg flex flex-row  pr-4 w-96">
+            <div class="w-40 h-40 ">
+                <img th:src="@{/{imageName}(imageName=${product.img})}" class=" object-cover w-full h-full rounded-lg"
+                     alt="product image">
+            </div>
             <div class="flex flex-col pl-4 justify-between py-2">
                 <span class="font-bold text-xl " th:text="${product.name}"></span>
                 <div>
