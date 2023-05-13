@@ -5,7 +5,6 @@ import lombok.*;
 
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product {
@@ -15,4 +14,8 @@ public class Product {
     private int inStock;
     private float price;
     private String img;
+
+    public String toString() {
+        return String.format("#%d %s  %s $  %s Kg  %d in stock  image file:%s", id, name, price, weight, inStock, img);
+    }
 }
