@@ -67,8 +67,10 @@ public class ProductController {
     @DeleteMapping("/api/product/{id}")
     public ResponseEntity<HttpStatus> delProductById(@PathVariable Long id) {
         try {
-            productRepo.deleteById(id);
-            return ResponseEntity.ok().build();
+            if (productRepo.findById(id).isPresent()){
+                productRepo.deleteById(id);
+                return ResponseEntity.ok().build();
+            }else return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
