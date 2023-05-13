@@ -2,10 +2,7 @@ package org.project;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 import org.project.model.Product;
 import picocli.CommandLine;
 
@@ -17,6 +14,7 @@ import java.util.stream.Collectors;
 public class Main implements Runnable {
     static OkHttpClient client = new OkHttpClient();
     static ObjectMapper json = new ObjectMapper();
+    static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     static String baseURL = "http://localhost:8080/api/product";
 
@@ -52,6 +50,26 @@ public class Main implements Runnable {
         @Override
         public void run() {
 
+            try {
+                Product newProduct = new Product(0, name, weight, inStock, price, img);
+                RequestBody body = RequestBody.create(json.writeValueAsString(newProduct), JSON);
+                Call call = client.newCall(new Request.Builder().url(baseURL).post(body).build());
+                Response response = call.execute();
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        Product createdProduct = json.readValue(response.body().string(), Product.class);
+                        System.out.printf("Product was successfully added to database\n#%d %s  %s $  %s Kg  %d in stock  image file:%s\n%n",
+                                createdProduct.getId(), createdProduct.getName(), createdProduct.getPrice(), createdProduct.getWeight(), createdProduct.getInStock(), createdProduct.getImg());
+                    } else {
+                        System.out.println("No product was created");
+                    }
+                } else {
+                    System.out.printf("Error %d : %s%n", response.code(), response.message());
+                }
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -71,15 +89,15 @@ public class Main implements Runnable {
                         });
 
                         String formattedOutput = products.subList(0, Math.min(limit, products.size())).stream().map(
-                                p -> String.format("#%d %s  %s $  %s Kg  %d in stock  image file:%s\n",
-                                        p.getId(), p.getName(), p.getPrice(), p.getWeight(), p.getInStock(), p.getImg()))
+                                        p -> String.format("#%d %s  %s $  %s Kg  %d in stock  image file:%s\n",
+                                                p.getId(), p.getName(), p.getPrice(), p.getWeight(), p.getInStock(), p.getImg()))
                                 .collect(Collectors.joining());
                         System.out.println(formattedOutput);
                     } else {
                         System.out.println("No products were found");
                     }
                 } else {
-                    System.out.printf("Error %d : %s%n",response.code(),response.message());
+                    System.out.printf("Error %d : %s%n", response.code(), response.message());
                 }
 
             } catch (IOException e) {
