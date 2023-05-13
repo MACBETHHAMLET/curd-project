@@ -30,14 +30,9 @@ public class Main implements Runnable {
 
     public static void printError(Response r) {
         switch (r.code()) {
-            case 404:
-                System.out.println("404: product not found");
-                break;
-            case 500:
-                System.out.println("500: internal server error");
-                break;
-            default:
-                System.out.println("unrecognised error code: " + r.code());
+            case 404 -> System.out.println("404: product not found");
+            case 500 -> System.out.println("500: internal server error");
+            default -> System.out.println("unrecognised error code: " + r.code());
         }
     }
 
