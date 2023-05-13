@@ -1,9 +1,25 @@
 package org.project;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.project.model.Product;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "webshop-cli", version = "1.0", mixinStandardHelpOptions = true)
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@CommandLine.Command(name = "webshop-cli", version = "1.0", mixinStandardHelpOptions = true, subcommands = {Main.CreateCommand.class, Main.ListCommand.class, Main.UpdateCommand.class, Main.DelCommand.class})
 public class Main implements Runnable {
+    static OkHttpClient client = new OkHttpClient();
+    static ObjectMapper json = new ObjectMapper();
+
+    static String baseURL = "http://localhost:8080/api/product";
+
     public static void main(String[] args) {
         int exitCode = new CommandLine(new Main()).execute(args);
         System.exit(exitCode);
@@ -11,85 +27,105 @@ public class Main implements Runnable {
 
     @Override
     public void run() {
-
+        System.out.println("Welcome to Farmers Market Admin Panel\navailable commands are: \n  create,list,update,delete\nuse these commands to add,view,update and delete products on your shop.");
     }
 
-}
+    @CommandLine.Command(name = "create", mixinStandardHelpOptions = true, description = "adds a new product to webshop")
+    static
+    class CreateCommand implements Runnable {
+        @CommandLine.Option(names = {"-n", "--name"}, description = "Product name.", required = true)
+        String name;
 
-@CommandLine.Command(name = "create", mixinStandardHelpOptions = true, description = "adds a new product to webshop")
-class CreateCommand implements Runnable{
-    @CommandLine.Option(names = {"-n", "--name"},description = "Product name.", required = true)
-    String name;
+        @CommandLine.Option(names = {"-p", "--price"}, description = "Product price (USD).", required = true)
+        float price;
 
-    @CommandLine.Option(names = {"-p", "--price"},description = "Product price (USD).", required = true)
-    float price;
+        @CommandLine.Option(names = {"-s", "--stock"}, description = "Number in Stock.", required = true)
+        int inStock;
 
-    @CommandLine.Option(names = {"-s", "--stock"},description = "Number in Stock.", required = true)
-    int inStock;
+        @CommandLine.Option(names = {"-w", "--weight"}, description = "Product weight (Kg).", required = true)
+        float weight;
 
-    @CommandLine.Option(names = {"-w", "--weight"},description = "Product weight (Kg).", required = true)
-    float weight;
-
-    @CommandLine.Option(names = {"-i", "--image"},description = "Product image file path (relative to static/ folder)", required = true)
-    String img;
+        @CommandLine.Option(names = {"-i", "--image"}, description = "Product image file path (relative to static/ folder)", required = true)
+        String img;
 
 
-    @Override
-    public void run() {
+        @Override
+        public void run() {
 
+        }
     }
-}
+
+    @CommandLine.Command(name = "list", mixinStandardHelpOptions = true, description = "lists products")
+    static class ListCommand implements Runnable {
+        @CommandLine.Option(names = {"-l", "--limit"}, description = "limits the output list.", defaultValue = "10")
+        int limit = 10;
 
 
-@CommandLine.Command(name = "list", mixinStandardHelpOptions = true, description = "lists products")
-class ListCommand implements Runnable{
-    @CommandLine.Option(names = {"-l", "--limit"},description = "limits the output list.", defaultValue = "10")
-    int limit=10;
+        @Override
+        public void run() {
+            Call call = client.newCall(new Request.Builder().url(baseURL).build());
+            try (Response response = call.execute()) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        List<Product> products = json.readValue(response.body().string(), new TypeReference<>() {
+                        });
 
+                        String formattedOutput = products.subList(0, Math.min(limit, products.size())).stream().map(
+                                p -> String.format("#%d %s  %s $  %s Kg  %d in stock  image file:%s\n",
+                                        p.getId(), p.getName(), p.getPrice(), p.getWeight(), p.getInStock(), p.getImg()))
+                                .collect(Collectors.joining());
+                        System.out.println(formattedOutput);
+                    } else {
+                        System.out.println("No products were found");
+                    }
+                } else {
+                    System.out.printf("Error %d : %s%n",response.code(),response.message());
+                }
 
-    @Override
-    public void run() {
-
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
-}
 
-@CommandLine.Command(name = "delete", mixinStandardHelpOptions = true, description = "deletes a product given its id.")
-class DelCommand implements Runnable{
-    @CommandLine.Parameters(description = "id of the product being deleted.", paramLabel = "<id>")
-    int id;
+    @CommandLine.Command(name = "delete", mixinStandardHelpOptions = true, description = "deletes a product given its id.")
+    static class DelCommand implements Runnable {
+        @CommandLine.Parameters(description = "id of the product being deleted.", paramLabel = "<id>")
+        int id;
 
 
-    @Override
-    public void run() {
+        @Override
+        public void run() {
 
+        }
     }
-}
 
 
-@CommandLine.Command(name = "update", mixinStandardHelpOptions = true, description = "updates a product")
-class UpdateCommand implements Runnable{
+    @CommandLine.Command(name = "update", mixinStandardHelpOptions = true, description = "updates a product")
+    static class UpdateCommand implements Runnable {
 
-    @CommandLine.Parameters(description = "id of the product being updated.",paramLabel = "<id>")
-    long id;
+        @CommandLine.Parameters(description = "id of the product being updated.", paramLabel = "<id>")
+        long id;
 
-    @CommandLine.Option(names = {"-n", "--name"},description = "Product name.")
-    String name;
+        @CommandLine.Option(names = {"-n", "--name"}, description = "Product name.")
+        String name;
 
-    @CommandLine.Option(names = {"-p", "--price"},description = "Product price (USD).")
-    float price;
+        @CommandLine.Option(names = {"-p", "--price"}, description = "Product price (USD).")
+        float price;
 
-    @CommandLine.Option(names = {"-s", "--stock"},description = "Number in Stock.")
-    int inStock;
+        @CommandLine.Option(names = {"-s", "--stock"}, description = "Number in Stock.")
+        int inStock;
 
-    @CommandLine.Option(names = {"-w", "--weight"},description = "Product weight (Kg).")
-    float weight;
+        @CommandLine.Option(names = {"-w", "--weight"}, description = "Product weight (Kg).")
+        float weight;
 
-    @CommandLine.Option(names = {"-i", "--image"},description = "Product image file path (relative to static/ folder)")
-    String img;
+        @CommandLine.Option(names = {"-i", "--image"}, description = "Product image file path (relative to static/ folder)")
+        String img;
 
 
-    @Override
-    public void run() {
+        @Override
+        public void run() {
 
+        }
     }
 }
