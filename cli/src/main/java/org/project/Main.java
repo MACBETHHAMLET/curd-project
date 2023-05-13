@@ -63,13 +63,11 @@ public class Main implements Runnable {
                 Call call = client.newCall(new Request.Builder().url(baseURL).post(body).build());
                 Response response = call.execute();
                 if (response.isSuccessful()) {
-                    if (response.body() != null) {
-                        Product createdProduct = json.readValue(response.body().string(), Product.class);
-                        System.out.printf("%s\nAbove product was successfully added to database.", createdProduct);
-                    } else {
-                        System.out.println("No product was created");
-                    }
-                } else  printError(response);
+                    assert response.body() != null;
+                    Product createdProduct = json.readValue(response.body().string(), Product.class);
+                    System.out.printf("%s\nabove product was successfully added to database.", createdProduct);
+
+                } else printError(response);
 
 
             } catch (IOException e) {
@@ -89,17 +87,15 @@ public class Main implements Runnable {
             Call call = client.newCall(new Request.Builder().url(baseURL).build());
             try (Response response = call.execute()) {
                 if (response.isSuccessful()) {
-                    if (response.body() != null) {
-                        List<Product> products = json.readValue(response.body().string(), new TypeReference<>() {
-                        });
+                    assert response.body() != null;
+                    List<Product> products = json.readValue(response.body().string(), new TypeReference<>() {
+                    });
 
-                        String formattedOutput = products.subList(0, Math.min(limit, products.size())).stream().map( p -> String.format("%s\n", p))
-                                .collect(Collectors.joining());
-                        System.out.println(formattedOutput);
-                    } else {
-                        System.out.println("No products were found");
-                    }
-                }  else  printError(response);
+                    String formattedOutput = products.subList(0, Math.min(limit, products.size())).stream().map(p -> String.format("%s\n", p))
+                            .collect(Collectors.joining());
+                    System.out.println(formattedOutput);
+
+                } else printError(response);
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -119,7 +115,7 @@ public class Main implements Runnable {
             try (Response response = call.execute()) {
                 if (response.isSuccessful()) {
                     System.out.printf("Product #%d was successfully deleted from database.", id);
-                }else  printError(response);
+                } else printError(response);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -154,32 +150,25 @@ public class Main implements Runnable {
             try {
                 Response getResponse = client.newCall(new Request.Builder().url(baseURL + "/" + id).build()).execute();
                 if (getResponse.isSuccessful()) {
-                    if (getResponse.body() != null) {
-                        Product product = json.readValue(getResponse.body().string(), Product.class);
-                        Product updatedProduct = new Product(product.getId(),
-                                name != null ? name : product.getName(),
-                                weight != -1 ? weight : product.getWeight(),
-                                inStock != -1 ? inStock : product.getInStock(),
-                                price != -1 ? price : product.getPrice(),
-                                img != null ? img : product.getImg()
-                        );
-                        RequestBody body = RequestBody.create(json.writeValueAsString(updatedProduct), JSON);
-                        Call call = client.newCall(new Request.Builder().url(baseURL).post(body).build());
-                        Response response = call.execute();
+                    assert getResponse.body() != null;
+                    Product product = json.readValue(getResponse.body().string(), Product.class);
+                    Product updatedProduct = new Product(product.getId(),
+                            name != null ? name : product.getName(),
+                            weight != -1 ? weight : product.getWeight(),
+                            inStock != -1 ? inStock : product.getInStock(),
+                            price != -1 ? price : product.getPrice(),
+                            img != null ? img : product.getImg()
+                    );
+                    RequestBody body = RequestBody.create(json.writeValueAsString(updatedProduct), JSON);
+                    Call call = client.newCall(new Request.Builder().url(baseURL).post(body).build());
+                    Response response = call.execute();
 
-                        if (response.isSuccessful()) {
-                            if (response.body() != null) {
-                                Product updatedProductInDB = json.readValue(response.body().string(), Product.class);
-                                System.out.printf("%s\nchanged to:\n%s", product,updatedProductInDB);
-                            } else {
-                                System.out.println("No product was updated");
-                            }
-                        }else  printError(response);
-
-                    } else {
-                        System.out.println("No products were found");
-                    }
-                } else  printError(getResponse);
+                    if (response.isSuccessful()) {
+                        assert response.body() != null;
+                        Product updatedProductInDB = json.readValue(response.body().string(), Product.class);
+                        System.out.printf("%s\nchanged to\n%s", product, updatedProductInDB);
+                    } else printError(response);
+                } else printError(getResponse);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
