@@ -3,8 +3,18 @@
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Farmers Market</title>
+
 </head>
 <body>
+<aside>
+    <form id="btn-danger">
+        <span id="totalAmount"></span>
+        <button type="submit"></button>
+        <button type="remove"></button>
+        <button type="add"></button>
+        <input type="number"/>
+    </form>
+</aside>
 <div class="p-4" layout:fragment="main">
     <h2 class="text-2xl py-10  font-bold ">🌾Today's Fresh Products ‍🌾</h2>
     <div class="flex flex-col items-start gap-6">
@@ -33,7 +43,7 @@
     </div>
 
 </div>
-
+<script src="famersmarket.js"></script>
 </body>
 </html>
 

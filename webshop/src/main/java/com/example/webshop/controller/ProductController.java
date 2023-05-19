@@ -1,5 +1,6 @@
 package com.example.webshop.controller;
 
+import com.example.webshop.model.CartItem;
 import com.example.webshop.model.Product;
 import com.example.webshop.repo.ProductRepo;
 import org.springframework.beans.BeanUtils;
@@ -74,5 +75,26 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @PostMapping("/api/product/purchase")
+    // TODO: we need better error handling here...
+    public ResponseEntity<HttpStatus> updateProducts(@RequestBody List<CartItem> items){
+        boolean areAllItemsValid =  items.stream().allMatch(item -> {
+            Optional<Product> optionalProduct = productRepo.findById(item.getId());
+            return optionalProduct.filter(product -> item.getQuantity() <= product.getInStock() && item.getQuantity() >= 0).isPresent();
+        });
+        if (areAllItemsValid){
+            // update the inStock properties of the products in the shop list.
+            items.forEach(item -> {
+                Optional<Product> optionalProduct = productRepo.findById(item.getId());
+                assert optionalProduct.isPresent();
+                Product p = optionalProduct.get();
+                p.updateInStock(item.getQuantity());
+                productRepo.save(p);
+            });
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.internalServerError().build();
     }
 }
