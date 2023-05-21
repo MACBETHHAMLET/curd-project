@@ -3,35 +3,122 @@
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Farmers Market</title>
+    <script th:inline="javascript">
+        function addToCart(productId) {
+            fetch('/api/cart', {
+                method: 'POST',
+                body: JSON.stringify({product: {id: productId}, quantity: 1}),
+                headers: {"Content-Type": "application/json"}
+            }).then(response => {
+                location.reload()
+            })
+
+        }
+
+        function removeCartItem(id) {
+            fetch(`/api/cart/${id}`, {
+                method: "DELETE",
+                headers: {"Content-Type": "application/json"}
+            }).then(response => {
+                location.reload()
+            })
+        }
+
+
+        function handleQuantityChange(id, newValue) {
+            fetch(`/api/cart/${id}`, {
+                method: "PUT",
+                body: JSON.stringify({quantity: newValue}),
+                headers: {"Content-Type": "application/json"}
+            }).then(response => {
+                location.reload()
+            })
+        }
+
+
+        function checkout() {
+            fetch(`/api/purchase`, {
+                method: "POST", headers: {"Content-Type": "application/json"}
+            }).then(response => {
+                response.text().then(alert)
+                if (response.ok){
+                    location.reload()
+                }
+            })
+        }
+    </script>
 </head>
 <body>
 <div class="p-4" layout:fragment="main">
     <h2 class="text-2xl py-10  font-bold ">🌾Today's Fresh Products ‍🌾</h2>
-    <div class="flex flex-col items-start gap-6">
-        <div th:each="product: ${products}" class="rounded-lg  shadow-lg flex flex-row  pr-4 w-96">
-            <div class="w-40 h-40 ">
-                <img th:src="@{/{imageName}(imageName=${product.img})}" class=" object-cover w-full h-full rounded-lg"
-                     alt="product image">
-            </div>
-            <div class="flex flex-col pl-4 justify-between py-2">
-                <span class="font-bold text-xl " th:text="${product.name}"></span>
-                <div>
-                    <span class="text-sm font-normal text-stone-700 ">USD <span th:text="${product.price} + '$'"></span></span>
-                    <span class="flex flex-row items-center gap-1 text-sm font-normal text-stone-700"><svg
-                            xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
-                            stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-   <path d="M12 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
-   <path d="M6.835 9h10.33a1 1 0 0 1 .984 .821l1.637 9a1 1 0 0 1 -.984 1.179h-13.604a1 1 0 0 1 -.984 -1.179l1.637 -9a1 1 0 0 1 .984 -.821z"></path>
-</svg> <span th:text="${product.weight} + ' Kg'"></span></span>
-                    <span class="text-sm font-normal text-stone-700"> <span th:text="${product.inStock}"> </span> left in stock </span>
+    <div class="flex flex-row items-start">
+
+        <div class="grow flex flex-row flex-wrap items-start  gap-4">
+            <div th:each="product: ${products}" class="rounded-lg  shadow-lg flex flex-row  pr-4 ">
+                <div class="w-40 h-40 ">
+                    <img th:src="@{/{imageName}(imageName=${product.img})}"
+                         class=" object-cover w-full h-full rounded-lg"
+                         alt="product image">
                 </div>
+                <div class="flex flex-col pl-4 justify-between py-2">
+                    <div class="flex flex-row gap-2">
+                        <span class="font-bold text-xl  whitespace-nowrap" th:text="${product.name}"></span>
+                        <button class="font-semibold border-0 bg-sky-100 hover:bg-sky-200 text-sky-700  p-1  rounded-lg"
+                                th:onclick="addToCart([[${product.id}]])"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                <path d="M17 17h-11v-14h-2"></path>
+                                <path d="M6 5l6 .429m7.138 6.573l-.143 1h-13"></path>
+                                <path d="M15 6h6m-3 -3v6"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div>
+                        <span class="text-sm font-normal text-stone-700 ">USD <span
+                                th:text="${product.price} + '$'"></span></span>
+                        <span class="flex flex-row items-center gap-1 text-sm font-normal text-stone-700">
+                        <svg
+                                xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                                stroke-linejoin="round">
+                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                           <path d="M12 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+                           <path d="M6.835 9h10.33a1 1 0 0 1 .984 .821l1.637 9a1 1 0 0 1 -.984 1.179h-13.604a1 1 0 0 1 -.984 -1.179l1.637 -9a1 1 0 0 1 .984 -.821z"></path>
+                        </svg>
+                        <span th:text="${product.weight} + ' Kg'"></span>
+                    </span>
+                        <span class="text-sm font-normal text-stone-700"> <span th:text="${product.inStock}"> </span> left in stock </span>
+                    </div>
+                </div>
+
             </div>
-
         </div>
-    </div>
+        <aside class="shadow-lg rounded-lg px-4 py-2 bg-sky-50 flex flex-col justify-between ">
+            <ol class="flex flex-col gap-2">
+                <li class="flex flex-row items-center  font-semibold text-sky-700 gap-2" th:each="cartItem: ${cart}">
+                    <span th:text="${cartItem.product.name}" class="w-24"></span>
+                    <input id="qty" type="number" th:value="${cartItem.quantity}" placeholder="quantity" class="w-10"
+                           th:onchange="handleQuantityChange([[${cartItem.id}]], this.value)">
+                    <button class="font-semibold border-0 bg-red-50 hover:bg-red-100 text-red-700 focus:bg-red-200 p-1 mx-2 rounded-lg"
+                            th:onclick="removeCartItem([[${cartItem.id}]])">remove
+                    </button>
+                </li>
+            </ol>
+            <div class="flex flex-row gap-2 items-center mt-10">
+                <span th:text="'Total USD ' + ${total}" class="whitespace-nowrap"></span>
+                <button class="font-semibold border-0 bg-sky-100 hover:bg-sky-200 text-sky-700  p-1  rounded-lg"
+                        th:onclick="checkout()">
+                    Checkout
+                </button>
+            </div>
+        </aside>
 
+    </div>
 </div>
 
 </body>
