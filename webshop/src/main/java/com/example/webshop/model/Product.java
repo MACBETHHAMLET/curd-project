@@ -19,4 +19,8 @@ public class Product {
     private int inStock;
     private float weight;
     private String img;
+    public Product updateInStock(int quantity){
+        inStock -= quantity;
+        return this;
+    }
 }
